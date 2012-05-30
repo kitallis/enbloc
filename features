@@ -1,0 +1,18 @@
+- define multiple <div>s that can take start/end params from js and act as captions for the video
+- <div>s can either be slapped spanning the whole video or just the footer which is 1/3rds of the height ('full' or 'footer')
+- uses popcorn.js to fire timed events
+
+enbloc.caption({
+	start: 2,
+	end: 6,
+	fadeIn: 2,
+	fadeOut: 3,
+	element: "footnotediv",
+	position: 'footer', 'caption', 'left'
+},
+{
+	start: 1,
+	end: 3,
+	element: "fulldiv",
+	position: 'full'
+});
