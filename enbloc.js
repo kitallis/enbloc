@@ -53,6 +53,9 @@ EnBlocPopcorn.prototype = {
 	bindCaptionWithTime: function() {
     var self = this;
 		this.popcorn.on('timeupdate', function() {
+      // TODO: show() and hide() are idempotent, so this is coincidental.
+      // Should only be called for unique round numbers as 'timeupdate'
+      // doesn't necessarily get fired on 1, 2, 3 etc.
       self.caption.showOrHide(Math.round(this.currentTime())); 
     });   
 	}
@@ -120,6 +123,9 @@ Caption.prototype = {
     var captionDiv = '<div class="caption"></div>';
     this.enBlocCaption = this.append($(document.body), captionDiv);
 
+    // TODO: Make less procedural.
+    // This has too much dependence on prior behaviour.
+    // Can be delegated to a Caption.Element class.
     this.setEnBlocCaptionStyles();
     this.insertElement();
   },
@@ -133,7 +139,7 @@ Caption.prototype = {
     var self = this;
 
     this.enBlocCaption.css('top', function() { return self.setTop(); });
-    //this.enBlocCaption.css('left', function() { self.setLeft(); });
+    this.enBlocCaption.css('left', function() { return self.setLeft(); });
 
     if (!this.isHTML(this.element)) {
       this.enBlocCaption.css('background', 'green');
@@ -166,13 +172,11 @@ Caption.prototype = {
     var element = this.HTMLOrText(this.element);
     this.enBlocCaption.html(element);
     
-    //this.enBlocCaption.hide();
+    this.enBlocCaption.hide();
   },
 
-  // it'll either be a custom DOM element or just plain text.
 	HTMLOrText: function(element) {
     if (this.isHTML(element)) {
-      //$(element).hide();
 			return $(element).html();
 		} else {
 			return element;
@@ -189,12 +193,12 @@ Caption.prototype = {
     }
   },
 
+  // TODO: See EnBlocPopcorn 'timeupdate' event.
 	showOrHide: function(currentTime) {
     if (currentTime === this.start) {
 			this.enBlocCaption.show();
-      console.log(this.enBlocCaption);
 		} else if (currentTime == this.end) {
-      //this.enBlocCaption.hide();
+      this.enBlocCaption.hide();
 		}
 	}
 };
