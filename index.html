@@ -5,16 +5,28 @@
     <script src="http://popcornjs.org/code/dist/popcorn-complete.min.js"></script>
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
     <script src="enbloc.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+
+         var enbloc = new EnBloc("#ourvideo");
+
+         enbloc.caption({
+           start: 1,
+           end: 3,
+           position: "full",
+           element: "Informative cyclones"
+         });
+
+         enbloc.play();
+
+      }, false);      
+    </script>
   </head>
+
   <body>
     <video height="180" width="300" id="ourvideo">
-      <source src="http://videos.mozilla.org/serv/webmademovies/popcornplug.mp4">
       <source src="http://videos.mozilla.org/serv/webmademovies/popcornplug.ogv">
       <source src="http://videos.mozilla.org/serv/webmademovies/popcornplug.webm">
     </video>
-
-    <div id="footnotediv">
-      Informative cyclones.
-    </div>
   </body>
 </html>
