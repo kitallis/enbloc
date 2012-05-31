@@ -1,88 +1,88 @@
 Video = function(video) {
-	this.video = $(video);
+  this.video = $(video);
 };
 
 Video.prototype = {
-	height: function() {
-		return this.video.height();
-	},
+  height: function() {
+    return this.video.height();
+  },
 
-	width: function() {
-		return this.video.width();
-	},
-	
-	top: function() {
-		return this.video.position().top;
-	},
-	
-	right: function() {
-		return this.video.position().right;
-	},
+  width: function() {
+    return this.video.width();
+  },
+  
+  top: function() {
+    return this.video.position().top;
+  },
+  
+  right: function() {
+    return this.video.position().right;
+  },
 
-	bottom: function() {
-		return this.video.position().bottom;
-	},
+  bottom: function() {
+    return this.video.position().bottom;
+  },
 
-	left: function() {
-		return this.video.position().left;
-	},
+  left: function() {
+    return this.video.position().left;
+  },
 
-	lowerThirdHeight: function() {
-		return (2 * this.height()) / 3;
-	},
+  lowerThirdHeight: function() {
+    return (2 * this.height()) / 3;
+  },
 
-	lowerThirdWidth: function() {
-		return this.width();
-	},
+  lowerThirdWidth: function() {
+    return this.width();
+  },
 
-	lowerThirdCaptionHeight: function() {
-		return (this.height() - this.lowerThird()) / 2;
-	},
+  lowerThirdCaptionHeight: function() {
+    return (this.height() - this.lowerThird()) / 2;
+  },
 
-	lowerThirdCaptionWidth: function() {
-		return this.width() / 2;
-	}
+  lowerThirdCaptionWidth: function() {
+    return this.width() / 2;
+  }
 };
 
 EnBlocPopcorn = function(popcorn, caption) {
-	this.popcorn = popcorn;
-	this.caption = caption;
+  this.popcorn = popcorn;
+  this.caption = caption;
 };
 
 EnBlocPopcorn.prototype = {
-	bindCaptionWithTime: function() {
+  bindCaptionWithTime: function() {
     var self = this;
-		this.popcorn.on('timeupdate', function() {
+    this.popcorn.on('timeupdate', function() {
       // TODO: show() and hide() are idempotent, so this is coincidental.
       // Should only be called for unique round numbers as 'timeupdate'
       // doesn't necessarily get fired on 1, 2, 3 etc.
       self.caption.showOrHide(Math.round(this.currentTime())); 
     });   
-	}
+  }
 };
 
 EnBloc = function(video) {
-	this.video = new Video(video);
+  this.video = new Video(video);
   this.popcorn = new Popcorn(video);
 };
 
 EnBloc.prototype = {
-	caption: function() {
-		for (var caption = 0; caption < arguments.length; caption++) {
-			this.initialize(arguments[caption]);
-		};
-	},
+  caption: function() {
+    for (var caption = 0; caption < arguments.length; caption++) {
+      this.initialize(arguments[caption]);
+    };
+  },
 
-	initialize: function(options) {
-		var start = this.setNumericOptions(options.start);
-		var end = this.setNumericOptions(options.end);
+  initialize: function(options) {
+    var start = this.setNumericOptions(options.start);
+    var end = this.setNumericOptions(options.end);
 
-		var fadeIn = this.setNumericOptions(options.fadeIn);
-		var fadeOut = this.setNumericOptions(options.fadeOut);
+    var fadeIn = this.setNumericOptions(options.fadeIn);
+    var fadeOut = this.setNumericOptions(options.fadeOut);
 
-		var position = (options.position || "footer");
+    var position = (options.position || "footer");
 
-		var element = options.element;
+    var element = options.element;
 
     var caption = new Caption(this.video, 
                               element, 
@@ -91,13 +91,13 @@ EnBloc.prototype = {
                               end, 
                               fadeIn, 
                               fadeOut);
-		var enBlocPopcorn = new EnBlocPopcorn(this.popcorn, caption);
-		enBlocPopcorn.bindCaptionWithTime();
-	},
+    var enBlocPopcorn = new EnBlocPopcorn(this.popcorn, caption);
+    enBlocPopcorn.bindCaptionWithTime();
+  },
 
-	setNumericOptions: function(option) {
-		return (option || 0);
-	},
+  setNumericOptions: function(option) {
+    return (option || 0);
+  },
 
   play: function() {
     this.popcorn.play();
@@ -115,11 +115,11 @@ Caption = function(video, element, position, start, end, fadeIn, fadeOut) {
   this.fadeIn = fadeIn;
   this.fadeOut = fadeOut;
 
-	this.initialize();
+  this.initialize();
 };
 
 Caption.prototype = {
-	initialize: function() {
+  initialize: function() {
     var captionDiv = '<div class="caption"></div>';
     this.enBlocCaption = this.append($(document.body), captionDiv);
 
@@ -130,9 +130,9 @@ Caption.prototype = {
     this.insertElement();
   },
 
-  append: function(body, captionDiv) {
-    body.append(captionDiv);
-    return $("." + captionDiv);
+  append: function(documentBody, captionDiv) {
+    documentBody.append(captionDiv);
+    return $("." + captionDiv); // wat.
   },
 
   setEnBlocCaptionStyles: function() {
@@ -175,16 +175,16 @@ Caption.prototype = {
     this.enBlocCaption.hide();
   },
 
-	HTMLOrText: function(element) {
+  HTMLOrText: function(element) {
     if (this.isHTML(element)) {
-			return $(element).html();
-		} else {
-			return element;
-		}
-	},
+      return $(element).html();
+    } else {
+      return element;
+    }
+  },
 
   isHTML: function(element) {
-		var DOMElement = $(element);
+    var DOMElement = $(element);
 
     if (DOMElement.length) {
       return true;
@@ -194,11 +194,11 @@ Caption.prototype = {
   },
 
   // TODO: See EnBlocPopcorn 'timeupdate' event.
-	showOrHide: function(currentTime) {
+  showOrHide: function(currentTime) {
     if (currentTime === this.start) {
-			this.enBlocCaption.show();
-		} else if (currentTime == this.end) {
+      this.enBlocCaption.show();
+    } else if (currentTime == this.end) {
       this.enBlocCaption.hide();
-		}
-	}
+    }
+  }
 };
