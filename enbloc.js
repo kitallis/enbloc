@@ -54,7 +54,7 @@ EnBlocPopcorn.prototype = {
     var self = this;
     this.popcorn.on('timeupdate', function() {
       // TODO: show() and hide() are idempotent, so this is coincidental.
-      // Should only be called for unique round numbers as 'timeupdate'
+      // Should only be called for unique round numbers because 'timeupdate'
       // doesn't necessarily get fired on 1, 2, 3 etc.
       self.caption.showOrHide(Math.round(this.currentTime())); 
     });   
@@ -120,19 +120,26 @@ Caption = function(video, element, position, start, end, fadeIn, fadeOut) {
 
 Caption.prototype = {
   initialize: function() {
-    var captionDiv = '<div class="caption"></div>';
-    this.enBlocCaption = this.append($(document.body), captionDiv);
+    var documentBody = $(document.body);
+    this.enBlocCaption = this.append(documentBody);
+
+    // Caption positions.
+    this.footer = "footer"
+    this.full = "full"
 
     // TODO: Make less procedural.
-    // This has too much dependence on prior behaviour.
+    // This has too much dependence on prior behavior.
     // Can be delegated to a Caption.Element class.
     this.setEnBlocCaptionStyles();
     this.insertElement();
   },
 
-  append: function(documentBody, captionDiv) {
+  append: function(documentBody) {
+    var captionClass = "caption";
+    var captionDiv = "<div class=" + captionClass + "></div>";
     documentBody.append(captionDiv);
-    return $("." + captionDiv); // wat.
+    
+    return $("." + captionClass);
   },
 
   setEnBlocCaptionStyles: function() {
@@ -147,25 +154,15 @@ Caption.prototype = {
       this.enBlocCaption.css('position', 'absolute');
       this.enBlocCaption.css('color', '#eee');
       this.enBlocCaption.css('width', '100px');
-      this.enBlocCaption.css('display', 'block');
     }
   },
 
   setTop: function() {
-    if (this.position === "full") {
-      console.log(this.video.top());
-      return this.video.top();
-    } else {
-      return this.video.lowerThirdHeight();
-    }
+    return this.position === this.full ? this.video.top() : this.video.lowerThirdHeight();
   },
 
   setLeft: function() {
-    if (this.position === "full") {
-      return this.video.left();
-    } else {
-      return this.video.lowerThirdWidth();
-    }
+    return this.position === this.full ? this.video.left() : this.video.lowerThirdWidth();
   },
 
   insertElement: function() {
@@ -176,21 +173,11 @@ Caption.prototype = {
   },
 
   HTMLOrText: function(element) {
-    if (this.isHTML(element)) {
-      return $(element).html();
-    } else {
-      return element;
-    }
+    return this.isHTML(element) ? $(element).html() : element;
   },
 
   isHTML: function(element) {
-    var DOMElement = $(element);
-
-    if (DOMElement.length) {
-      return true;
-    } else {
-      return false;
-    }
+    return $(element).length ? true : false;
   },
 
   // TODO: See EnBlocPopcorn 'timeupdate' event.
