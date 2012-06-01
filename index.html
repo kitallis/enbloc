@@ -2,31 +2,47 @@
 <html>
   <head>
     <link rel="stylesheet" type="text/css" href="enbloc.css"/>
+
     <script src="http://popcornjs.org/code/dist/popcorn-complete.min.js"></script>
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
     <script src="enbloc.js"></script>
     <script>
       document.addEventListener("DOMContentLoaded", function () {
-
          var enbloc = new EnBloc("#ourvideo");
 
          enbloc.caption({
-           start: 1,
+           start: 0,
            end: 3,
-           position: "full",
+           position: "footer",
+           caption: "captionClass-1",
            element: "Informative cyclones with typewriters."
+         },
+         {
+           start: 2,
+           end: 4,
+           position: "full",
+           caption: "captionClass-2",
+           element: "Excellent cashews prescribed by a half-filipino dietician."
          });
 
-         // Excellent cashews prescribed by a half-philipino dietician.
+         var video = $('#ourvideo');
+
+         var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+         video.addEventListener("loadedmetadata", __bind(function(event) {
+           var actualRatio, adjustmentRatio, targetRatio;
+           actualRatio = video.videoWidth / video.videoHeight;
+           targetRatio = video.width() / video.height();
+           adjustmentRatio = targetRatio / actualRatio;
+           return video.css("-webkit-transform", "scaleX(" + adjustmentRatio + ")");
+         }, this));
 
          enbloc.play();
-
-      }, false);      
+      }, false);
     </script>
   </head>
 
   <body>
-    <video height="180" width="300" id="ourvideo">
+    <video width="100%" height="100%" style="image-fit: fill" id="ourvideo">
       <source src="http://videos.mozilla.org/serv/webmademovies/popcornplug.ogv">
       <source src="http://videos.mozilla.org/serv/webmademovies/popcornplug.webm">
     </video>

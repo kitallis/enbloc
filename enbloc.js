@@ -10,11 +10,11 @@ Video.prototype = {
   width: function() {
     return this.video.width();
   },
-  
+
   top: function() {
     return this.video.position().top;
   },
-  
+
   right: function() {
     return this.video.position().right;
   },
@@ -56,8 +56,8 @@ EnBlocPopcorn.prototype = {
       // TODO: show() and hide() are idempotent, so this is coincidental.
       // Should only be called for unique round numbers because 'timeupdate'
       // doesn't necessarily get fired on 1, 2, 3 etc.
-      self.caption.showOrHide(Math.round(this.currentTime())); 
-    });   
+      self.caption.showOrHide(Math.round(this.currentTime()));
+    });
   }
 };
 
@@ -80,16 +80,17 @@ EnBloc.prototype = {
     var fadeIn = this.setNumericOptions(options.fadeIn);
     var fadeOut = this.setNumericOptions(options.fadeOut);
 
-    var position = (options.position || "footer");
-
     var element = options.element;
+    var position = (options.position || "footer");
+    var captionClass = options.caption;
 
-    var caption = new Caption(this.video, 
-                              element, 
-                              position, 
-                              start, 
-                              end, 
-                              fadeIn, 
+    var caption = new Caption(this.video,
+                              element,
+                              position,
+                              captionClass,
+                              start,
+                              end,
+                              fadeIn,
                               fadeOut);
     var enBlocPopcorn = new EnBlocPopcorn(this.popcorn, caption);
     enBlocPopcorn.bindCaptionWithTime();
@@ -104,10 +105,11 @@ EnBloc.prototype = {
   }
 };
 
-Caption = function(video, element, position, start, end, fadeIn, fadeOut) {
+Caption = function(video, element, position, captionClass, start, end, fadeIn, fadeOut) {
+  this.video = video;
   this.element = element;
   this.position = position;
-  this.video = video;
+  this.captionClass = captionClass;
 
   this.start = start;
   this.end = end;
@@ -122,6 +124,7 @@ Caption.prototype = {
   initialize: function() {
     var documentBody = $(document.body);
     this.enBlocCaption = this.append(documentBody);
+    console.log(this.enBlocCaption);
 
     // Caption positions.
     this.footer = "footer"
@@ -135,25 +138,24 @@ Caption.prototype = {
   },
 
   append: function(documentBody) {
-    var captionClass = "caption";
-    var captionDiv = "<div class=" + captionClass + "></div>";
+    var captionDiv = "<div class=" + this.captionClass + "></div>";
     documentBody.append(captionDiv);
-    
-    return $("." + captionClass);
+
+    return $("." + this.captionClass);
   },
 
   setEnBlocCaptionStyles: function() {
     var self = this;
 
     this.enBlocCaption.css('top', function() { return self.setTop(); });
-    this.enBlocCaption.css('left', function() { return self.setLeft(); });
+    //this.enBlocCaption.css('left', function() { return self.setLeft(); });
 
     if (!this.isHTML(this.element)) {
       this.enBlocCaption.css('background', 'green');
       this.enBlocCaption.css('z-index', 5000);
       this.enBlocCaption.css('position', 'absolute');
       this.enBlocCaption.css('color', '#eee');
-      this.enBlocCaption.css('width', '100px');
+      this.enBlocCaption.css('width', '250px');
     }
   },
 
@@ -162,13 +164,13 @@ Caption.prototype = {
   },
 
   setLeft: function() {
-    return this.position === this.full ? this.video.left() : this.video.lowerThirdWidth();
+    return this.position === this.full ? this.video.left() : this.video.left();
   },
 
   insertElement: function() {
     var element = this.HTMLOrText(this.element);
     this.enBlocCaption.html(element);
-    
+
     this.enBlocCaption.hide();
   },
 
