@@ -1,9 +1,9 @@
 #footnotediv {
 	z-index: 5000;
-	position: absolute;
 	color: #eee;
-	background: black;
-	width: 140px;
+	position: absolute;
+	font-size: 30px;
+	font-family: 'Lora', serif;
 	top: 160px;
 	left: 80px;
 }

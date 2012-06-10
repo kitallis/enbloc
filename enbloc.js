@@ -3,6 +3,10 @@ Video = function(video) {
 };
 
 Video.prototype = {
+  play: function() {
+    this.video[0].play();
+  },
+
   height: function() {
     return this.video.height();
   },
@@ -44,30 +48,12 @@ Video.prototype = {
   }
 };
 
-EnBlocPopcorn = function(popcorn, caption) {
-  this.popcorn = popcorn;
-  this.caption = caption;
-};
-
-EnBlocPopcorn.prototype = {
-  bindCaptionWithTime: function() {
-    var self = this;
-    this.popcorn.on('timeupdate', function() {
-      // TODO: show() and hide() are idempotent, so this is coincidental.
-      // Should only be called for unique round numbers because 'timeupdate'
-      // doesn't necessarily get fired on 1, 2, 3 etc.
-      self.caption.showOrHide(Math.round(this.currentTime()));
-    });
-  }
-};
-
 EnBloc = function(video) {
   this.video = new Video(video);
-  this.popcorn = new Popcorn(video);
 };
 
 EnBloc.prototype = {
-  caption: function() {
+  captions: function() {
     for (var caption = 0; caption < arguments.length; caption++) {
       this.initialize(arguments[caption]);
     };
@@ -77,39 +63,48 @@ EnBloc.prototype = {
     var start = this.setNumericOptions(options.start);
     var end = this.setNumericOptions(options.end);
 
-    var fadeIn = this.setNumericOptions(options.fadeIn);
-    var fadeOut = this.setNumericOptions(options.fadeOut);
+    var fadeIn = this.setSeconds(options.fadeIn);
+    var fadeOut = this.setSeconds(options.fadeOut);
 
     var element = options.element;
     var position = (options.position || "footer");
-    var captionClass = options.caption;
+    var name = options.name;
 
-    var caption = new Caption(this.video,
+    this.caption = new EnBlocCaption(name,
+                              this.video,
                               element,
                               position,
-                              captionClass,
                               start,
                               end,
                               fadeIn,
                               fadeOut);
-    var enBlocPopcorn = new EnBlocPopcorn(this.popcorn, caption);
-    enBlocPopcorn.bindCaptionWithTime();
+
+    this.build();
   },
 
   setNumericOptions: function(option) {
     return (option || 0);
   },
 
+  setSeconds: function(option) {
+    return this.setNumericOptions(option * 1000);
+  },
+
+  build: function() {
+    this.caption.insert();
+  },
+
   play: function() {
-    this.popcorn.play();
+    this.video.play();
   }
 };
 
-Caption = function(video, element, position, captionClass, start, end, fadeIn, fadeOut) {
+EnBlocCaption = function(name, video, element, position, start, end, fadeIn, fadeOut) {
+  this.name = name;
+
   this.video = video;
   this.element = element;
   this.position = position;
-  this.captionClass = captionClass;
 
   this.start = start;
   this.end = end;
@@ -120,43 +115,44 @@ Caption = function(video, element, position, captionClass, start, end, fadeIn, f
   this.initialize();
 };
 
-Caption.prototype = {
+EnBlocCaption.prototype = {
   initialize: function() {
-    var documentBody = $(document.body);
-    this.enBlocCaption = this.append(documentBody);
-    console.log(this.enBlocCaption);
+    this.caption = $(this.append($(document.body)));
+    this.elementDOM = $(this.element);
 
-    // Caption positions.
-    this.footer = "footer"
-    this.full = "full"
-
-    // TODO: Make less procedural.
-    // This has too much dependence on prior behavior.
-    // Can be delegated to a Caption.Element class.
-    this.setEnBlocCaptionStyles();
-    this.insertElement();
+    // TODO: Mitigate this proceduralness.
+    this.setCaptionStyles();
+    this.bindWithTime();
   },
 
   append: function(documentBody) {
-    var captionDiv = "<div class=" + this.captionClass + "></div>";
+    var captionDiv = "<div class=" + this.name + "></div>";
     documentBody.append(captionDiv);
 
-    return $("." + this.captionClass);
+    return ("." + this.name);
   },
 
-  setEnBlocCaptionStyles: function() {
+  setCaptionStyles: function() {
+    this.isHTML() ? this.setDivStyles() : this.setTextStyles(); 
+  },
+
+  isHTML: function(element) {
+    return this.elementDOM.length ? true : false;
+  },
+
+  setDivStyles: function() {
     var self = this;
 
-    this.enBlocCaption.css('top', function() { return self.setTop(); });
-    //this.enBlocCaption.css('left', function() { return self.setLeft(); });
+    this.caption.css('top', function()  { return self.setTop();  });
+    this.caption.css('left', function() { return self.setLeft(); });
+  },
 
-    if (!this.isHTML(this.element)) {
-      this.enBlocCaption.css('background', 'green');
-      this.enBlocCaption.css('z-index', 5000);
-      this.enBlocCaption.css('position', 'absolute');
-      this.enBlocCaption.css('color', '#eee');
-      this.enBlocCaption.css('width', '250px');
-    }
+  setTextStyles: function() {
+    var position = {'z-index': 5000, 'position': 'absolute', 'width': '250px'};
+    var text = {'font-size': '30px', 'color': '#eee'};
+
+    this.caption.css(position);
+    this.caption.css(text);
   },
 
   setTop: function() {
@@ -167,27 +163,36 @@ Caption.prototype = {
     return this.position === this.full ? this.video.left() : this.video.left();
   },
 
-  insertElement: function() {
-    var element = this.HTMLOrText(this.element);
-    this.enBlocCaption.html(element);
+  bindWithTime: function() {
+    var self = this;
 
-    this.enBlocCaption.hide();
+    this.video.video.on('timeupdate', function() {
+      // TODO: show() and hide() are idempotent, so this is coincidental.
+      // Should only be called for unique round numbers because 'timeupdate'
+      // doesn't necessarily get fired on 1, 2, 3 etc.
+      self.showOrHide(Math.round(this.currentTime));
+    });
+  },
+
+  showOrHide: function(currentTime) {
+    if (currentTime === this.start) 
+    {
+      this.caption.show(this.fadeIn);
+    } 
+    else if (currentTime == this.end) 
+    {
+      this.caption.hide(this.fadeOut);
+    }
+  },
+
+  insert: function() {
+    var element = this.HTMLOrText(this.element);
+    this.caption.html(element);
+
+    this.caption.hide();
   },
 
   HTMLOrText: function(element) {
-    return this.isHTML(element) ? $(element).html() : element;
-  },
-
-  isHTML: function(element) {
-    return $(element).length ? true : false;
-  },
-
-  // TODO: See EnBlocPopcorn 'timeupdate' event.
-  showOrHide: function(currentTime) {
-    if (currentTime === this.start) {
-      this.enBlocCaption.show();
-    } else if (currentTime == this.end) {
-      this.enBlocCaption.hide();
-    }
+    return this.isHTML(element) ? this.elementDOM : element;
   }
 };

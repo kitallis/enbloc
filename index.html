@@ -2,6 +2,7 @@
 <html>
   <head>
     <link rel="stylesheet" type="text/css" href="enbloc.css"/>
+    <link href='http://fonts.googleapis.com/css?family=Lora' rel='stylesheet' type='text/css'>
 
     <script src="http://popcornjs.org/code/dist/popcorn-complete.min.js"></script>
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
@@ -9,32 +10,34 @@
     <script>
       document.addEventListener("DOMContentLoaded", function () {
          var enbloc = new EnBloc("#ourvideo");
-
-         enbloc.caption({
-           start: 0,
-           end: 3,
-           position: "footer",
-           caption: "captionClass-1",
-           element: "Informative cyclones with typewriters."
+         
+         /*
+         enbloc.properties({
+          start: 0,
+          end: 3,
+          controls: 'on'
+          size: 'scale'/'maintain'
+         });
+        */
+        
+         enbloc.captions({
+          name: "caption-1",
+          start: 3,
+          end: 4,
+          fadeIn: 0,
+          fadeOut: 1,
+          position: "footer",
+          element: "#footnotediv"
          },
          {
-           start: 2,
-           end: 4,
-           position: "full",
-           caption: "captionClass-2",
-           element: "Excellent cashews prescribed by a half-filipino dietician."
+          name: "caption-2",
+          start: 1,
+          end: 3,
+          fadeIn: 1,
+          fadeOut: 1,
+          position: "full",
+          element: "Excellent cashews prescribed by a half-filipino dietician."
          });
-
-         var video = $('#ourvideo');
-
-         var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
-         video.addEventListener("loadedmetadata", __bind(function(event) {
-           var actualRatio, adjustmentRatio, targetRatio;
-           actualRatio = video.videoWidth / video.videoHeight;
-           targetRatio = video.width() / video.height();
-           adjustmentRatio = targetRatio / actualRatio;
-           return video.css("-webkit-transform", "scaleX(" + adjustmentRatio + ")");
-         }, this));
 
          enbloc.play();
       }, false);
@@ -43,8 +46,11 @@
 
   <body>
     <video width="100%" height="100%" style="image-fit: fill" id="ourvideo">
-      <source src="http://videos.mozilla.org/serv/webmademovies/popcornplug.ogv">
-      <source src="http://videos.mozilla.org/serv/webmademovies/popcornplug.webm">
+      <source src="stormiscoming.webm">
     </video>
+
+    <div id="footnotediv">
+      Storm's coming.
+    </div>
   </body>
 </html>
