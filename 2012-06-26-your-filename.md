@@ -2,4 +2,4 @@
 
 It's super simple!
 
-Has an API inspired by popcorn.js
+Has an API inspired by popcorn.js and stuff.
